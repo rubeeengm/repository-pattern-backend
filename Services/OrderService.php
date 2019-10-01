@@ -7,8 +7,6 @@ use Models\User;
 
 use Models\Order;
 use PDOException;
-use Models\Product;
-use Models\OrderDetail;
 
 use Database\DbProvider;
 use Repositories\UserRepository;
@@ -73,8 +71,8 @@ class OrderService {
             $this->_db->beginTransaction();
 
             $this->prepareOrderCreation($model);
-            $this->orderCreate($model);
-            $this->orderDetailCreate($model);
+            $this->_orderRepository->add($model);
+            $this->_orderDetailRepository->addByOrderId($model->id, $model->detail);
 
             $this->_db->commit();
         } catch(PDOException $ex) {
@@ -94,42 +92,6 @@ class OrderService {
             $item->updated_at = $now;
 
             $model->total += $item->total;
-        }
-    }
-
-    private function orderCreate(Order &$model) : void {
-        $stm = $this->_db->prepare('
-            insert into orders(user_id, total, creater_id, created_at, updated_at)
-            values(:user_id, :total, :creater_id, :created, :updated)
-        ');
-
-        $stm->execute([
-            'user_id' => $model->user_id
-            , 'total' => $model->total
-            , 'creater_id' => $model->creater_id
-            , 'created' => $model->created_at
-            , 'updated' => $model->updated_at
-        ]);
-
-        $model->id = $this->_db->lastInsertId();
-    }
-
-    private function orderDetailCreate(Order $model) : void {
-        foreach ($model->detail as $item) {
-            $stm = $this->_db->prepare('
-                insert into order_detail(order_id, product_id, quantity, price, total, created_at, updated_at)
-                values(:order_id, :product_id, :quantity, :price, :total, :created_at, :updated_at)
-            ');
-
-            $stm->execute([
-                'order_id' => $model->id
-                , 'product_id' => $item->product_id
-                , 'quantity' => $item->quantity
-                , 'price' => $item->price
-                , 'total' => $item->total
-                , 'created_at' => $item->created_at
-                , 'updated_at' => $item->updated_at
-            ]);
         }
     }
 }

@@ -27,4 +27,21 @@ class OrderRepository {
 
         return $result;
     }
+
+    public function add(Order &$model) : void {
+        $stm = $this->_db->prepare('
+            insert into orders(user_id, total, creater_id, created_at, updated_at)
+            values(:user_id, :total, :creater_id, :created, :updated)
+        ');
+
+        $stm->execute([
+            'user_id' => $model->user_id
+            , 'total' => $model->total
+            , 'creater_id' => $model->creater_id
+            , 'created' => $model->created_at
+            , 'updated' => $model->updated_at
+        ]);
+
+        $model->id = $this->_db->lastInsertId();
+    }
 }

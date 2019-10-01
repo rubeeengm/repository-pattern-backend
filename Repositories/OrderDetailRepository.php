@@ -21,4 +21,23 @@ class OrderDetailRepository {
 
         return $stm->fetchAll(PDO::FETCH_CLASS, '\\Models\OrderDetail');
     }
+
+    public function addByOrderId(int $orderId, Array $model) : void {
+        foreach ($model as $item) {
+            $stm = $this->_db->prepare('
+                insert into order_detail(order_id, product_id, quantity, price, total, created_at, updated_at)
+                values(:order_id, :product_id, :quantity, :price, :total, :created_at, :updated_at)
+            ');
+
+            $stm->execute([
+                'order_id' => $orderId
+                , 'product_id' => $item->product_id
+                , 'quantity' => $item->quantity
+                , 'price' => $item->price
+                , 'total' => $item->total
+                , 'created_at' => $item->created_at
+                , 'updated_at' => $item->updated_at
+            ]);
+        }
+    }
 }
