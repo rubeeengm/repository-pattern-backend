@@ -5,6 +5,7 @@
             "Database\\": "Database/"
             , "Models\\": "Models/"
             , "Services\\": "Services/"
+            , "Repositories\\": "Repositories/"
         }
     }
 }
