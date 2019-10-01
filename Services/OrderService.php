@@ -3,79 +3,67 @@
 namespace Services;
 
 use PDO;
-use PDOException;
-
 use Models\User;
+
 use Models\Order;
+use PDOException;
 use Models\Product;
 use Models\OrderDetail;
 
 use Database\DbProvider;
+use Repositories\UserRepository;
+use Repositories\OrderRepository;
+use Repositories\ProductRepository;
+use Repositories\OrderDetailRepository;
 
 class OrderService {
     private $_db;
+    
+    private $_productRepository;
+    private $_userRepository;
+    private $_orderRepository;
+    private $_orderDetailRepository;
 
     public function __construct() {
         $this->_db = DbProvider::get();
+
+        $this->_productRepository = new ProductRepository;
+        $this->_userRepository = new UserRepository;
+        $this->_orderRepository = new OrderRepository;
+        $this->_orderDetailRepository = new OrderDetailRepository;
     }
 
     public function get(int $id): ?Order {
         $result = null;
 
         try {
-            $stm = $this->_db->prepare('select * from orders where id = :id');
-            $stm->execute(['id' => $id]);
-
-            $data = $stm->fetchObject('\\Models\\Order');
+            $data = $this->_orderRepository->find($id);
 
             if($data) {
                 $result = $data;
 
                 //Client
-                $result->client = $this->getUser($result->user_id);
+                $result->client = $this->_userRepository->find($result->user_id);
 
                 //Creater
-                $result->creater = $this->getUser($result->creater_id);
+                $result->creater = $this->_userRepository->find($result->creater_id);
 
                 //Detail
                 $result->detail = $this->getDetail($result->id);
             }
         } catch(PDOException $ex) {
-
+            var_dump($ex);
         }
 
         return $result;
     }
 
-    private function getDetail(int $order_id) : Array {
-        $stm = $this->_db->prepare('select * from order_detail where order_id = :order_id');
-
-        $stm->execute([
-            'order_id' => $order_id
-        ]);
-
-        $result = $stm->fetchAll(PDO::FETCH_CLASS, '\\Models\\OrderDetail');
+    private function getDetail(int $order_id) : array {
+        $result = $this->_orderDetailRepository->findAllByOrderId($order_id);
 
         foreach ($result as $item) {
-            $stm = $this->_db->prepare('select * from products where id = :product_id');
-            
-            $stm->execute([
-                'product_id' => $item->product_id
-            ]);
-
-            $item->product = $stm->fetchObject('\\Models\Product');
+            $item->product = $this->_productRepository->find($item->product_id);
         }
-
-        return $result;
-    }
-
-    private function getUser(int $id): User {
-        $stm = $this->_db->prepare('select * from users where id = :id');
-        $stm->execute(['id' => $id]);
-
-        $result = $stm->fetchObject('\\Models\\User');
-        
-        unset($result->password);
 
         return $result;
     }
