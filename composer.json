@@ -6,6 +6,7 @@
             , "Models\\": "Models/"
             , "Services\\": "Services/"
             , "Repositories\\": "Repositories/"
+            , "Container\\": "Container/"
         }
     },
     "require": {

@@ -1,0 +1,8 @@
+[2019-10-03T23:29:16.998127-05:00] backend.INFO: Project started [] []
+[2019-10-03T23:50:02.169579-05:00] backend.INFO: Project started [] []
+[2019-10-03T23:50:02.954127-05:00] backend.INFO: Comenzó la cración de orden [] []
+[2019-10-03T23:50:02.979418-05:00] backend.INFO: Se preparó el modelo para la nueva orden [] []
+[2019-10-03T23:50:03.206563-05:00] backend.INFO: Se creó la nueva orden [] []
+[2019-10-03T23:50:03.206693-05:00] backend.INFO: Se asoció el ID 47 a la nueva orden [] []
+[2019-10-03T23:50:03.212161-05:00] backend.INFO: Se creó el detalle de la orden [] []
+[2019-10-03T23:50:03.283990-05:00] backend.INFO: Finalizó la creación de la orden [] []

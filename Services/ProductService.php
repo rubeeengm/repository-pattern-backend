@@ -8,9 +8,11 @@ use Repositories\ProductRepository;
 
 class ProductService {
     private $_productRepository;
+    private $_logger;
 
     public function __construct() {
         $this->_productRepository = new ProductRepository;
+        $this->_logger = Container::get('logger');
     }
 
     public function getAll() : Array {
@@ -19,7 +21,7 @@ class ProductService {
         try {
             $result = $this->_productRepository->findAll();
         } catch(PDOException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
 
         return $result;
@@ -31,7 +33,7 @@ class ProductService {
         try {
             $result = $this->_productRepository->find($id);
         } catch(PDOException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
 
         return $result;
@@ -41,7 +43,7 @@ class ProductService {
         try {
             $result = $this->_productRepository->create($model);
         } catch(PDOException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
     }
 
@@ -49,7 +51,7 @@ class ProductService {
         try {
             $result = $this->_productRepository->update($model);
         } catch(PdoException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
     }
 
@@ -57,7 +59,7 @@ class ProductService {
         try {
             $result = $this->_productRepository->remove($id);
         } catch(PDOException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
     }
 }

@@ -8,6 +8,7 @@ use Models\User;
 use Models\Order;
 use PDOException;
 
+use Container\Container;
 use Database\DbProvider;
 use Repositories\UserRepository;
 use Repositories\OrderRepository;
@@ -21,6 +22,7 @@ class OrderService {
     private $_userRepository;
     private $_orderRepository;
     private $_orderDetailRepository;
+    private $_logger;
 
     public function __construct() {
         $this->_db = DbProvider::get();
@@ -29,6 +31,7 @@ class OrderService {
         $this->_userRepository = new UserRepository;
         $this->_orderRepository = new OrderRepository;
         $this->_orderDetailRepository = new OrderDetailRepository;
+        $this->_logger = Container::get('logger');
     }
 
     public function get(int $id): ?Order {
@@ -50,7 +53,7 @@ class OrderService {
                 $result->detail = $this->getDetail($result->id);
             }
         } catch(PDOException $ex) {
-            var_dump($ex);
+            $this->_logger->error($ex->getMessage());
         }
 
         return $result;
@@ -68,15 +71,24 @@ class OrderService {
 
     public function create(Order $model): void {
         try {
+            $this->_logger->info('Comenzó la cración de orden');
             $this->_db->beginTransaction();
 
+            $this->_logger->info('Se preparó el modelo para la nueva orden');
             $this->prepareOrderCreation($model);
+
             $this->_orderRepository->add($model);
+            $this->_logger->info('Se creó la nueva orden');
+            $this->_logger->info('Se asoció el ID ' . $model->id . ' a la nueva orden');
+
             $this->_orderDetailRepository->addByOrderId($model->id, $model->detail);
+            $this->_logger->info('Se creó el detalle de la orden');
 
             $this->_db->commit();
+            $this->_logger->info('Finalizó la creación de la orden');
         } catch(PDOException $ex) {
             $this->_db->rollback();
+            $this->_logger->error($ex->getMessage());
         }
     }
 
